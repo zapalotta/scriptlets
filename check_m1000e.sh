@@ -200,12 +200,12 @@ done
 
 # make sure we have a hostname and a sensor type
 if [[ -z "$host" ]]; then
-    echo "hostname has not been given"
-    exit 1
+    echo "UNKNOWN - hostname missing!"
+    exit 3
 fi
 if [[ -z "$sensor" ]]; then
-    echo "sensor has not been given"
-    exit 1
+    echo "UNKNOWN - sensor missing"
+    exit 3
 fi
 
 # Get data from racadm
