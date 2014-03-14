@@ -6,7 +6,7 @@
 # Version : 0.1
 # Date    : March 14 2014
 # Author  : Dirk Doerflinger - dirk(at)doerflinger(dot)org
-# Summary : This is a nagios plugin that checks the status M1000e blade chassis
+# Summary : This is a nagios plugin that checks the status of an M1000e blade chassis
 #           using DELL racadm
 #
 # Licence : MIT 
