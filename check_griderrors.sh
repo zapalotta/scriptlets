@@ -165,16 +165,10 @@ for qs in $QUEUES; do
     all_queue_stats+=" $qs=$ret,"
 done
 
-
-# Verbosity level
-verbosity=0
 # Warning threshold
 thresh_warn=-1
 # Critical threshold
 thresh_crit=-1
-
-
-
 
 perfdata=" | available_cores=$available_cores, used_cores=$used_cores, total_cores=$total_cores, $all_queue_stats"
 
