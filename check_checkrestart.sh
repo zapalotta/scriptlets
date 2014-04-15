@@ -36,6 +36,8 @@
 #
 # ===================== INFORMATION ABOUT THIS PLUGIN =========================
 #
+# This nagios plugin uses the checkrestart script from the debian-goodies to 
+# check if any processes are still using old version of updated libs.
 #
 # This program is written and maintained by:
 #   Dirk Doerflinger - dirk(at)doerflinger(dot)org
