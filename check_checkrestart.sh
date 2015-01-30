@@ -99,8 +99,8 @@ if [ $EUID -ne 0 ] ; then
 fi
 
 # use -p for newer versions
-$checkrestart -h  2>/dev/null| grep -q vhpa
-if  [ $? -eq 1 ] ; then
+$checkrestart -h  2>&1 | grep -q vhpa
+if  [ $? -eq 0 ] ; then
 	checkrestart="${checkrestart} -p"
 fi
 
@@ -167,17 +167,17 @@ fi
     
 case $exitcode in 
     0)
-	echo "OK| $result"
+	echo "OK: no service or process to restart | to_restart=$result"
 	exit 0
 	;;
     
     1)
-	echo "WARNING| $result"
+	echo "WARNING: $result services or processes to restart | to_restart=$result"
 	exit 1
 	;;
     
     2)
-	echo "CRTITICAL| $result"
+	echo "CRTITICAL: $result services or processes to restart | to_restart=$result"
 	exit 2
 	;;
     *)
