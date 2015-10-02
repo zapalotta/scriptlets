@@ -3,8 +3,8 @@
 # ============================== SUMMARY =====================================
 #
 # Program : check_checkrestart.sh
-# Version : 0.1
-# Date    : April 15 2014
+# Version : 0.2
+# Date    : January 28 2015
 # Author  : Dirk Doerflinger - dirk(at)doerflinger(dot)org
 # Summary : This is a Nagios plugin to check if any processes are still using 
 #           old versions of updated libraries. I needs check_restart from
@@ -41,10 +41,12 @@
 #
 # This program is written and maintained by:
 #   Dirk Doerflinger - dirk(at)doerflinger(dot)org
+#   Landry MINOZA - lminoza[at]mgi.fr - v0.2
 #
 # ============================= SETUP NOTES ====================================
 #
-# Copy this file to your Nagios plugin folder, e.g. /usr/lib64/nagios/plugins/. 
+# Copy this file to your Nagios plugin folder, e.g. /usr/lib64/nagios/plugins/
+# or /usr/local/lib/nagios/plugins. 
 # Make sure it is executable for the nagios user
 #
 # You need to have debian-goodies installed, which provides 
@@ -56,11 +58,13 @@
 #
 # ========================= SETUP EXAMPLES ==================================
 #
+# ===== Nagios command ======================================================
 # define command{
 #       command_name    check_checkrestart
 #       command_line    $USER1$/check_checkrestart.sh -w $ARG1$ -c $ARG2$
 #       }
 #
+# ===== Nagios service ======================================================
 # define service{
 #       use                     generic-service
 #       host_name               debian-server
@@ -70,15 +74,35 @@
 #       retry_check_interval    1
 #       }
 #
+# ===== NRPE check ==========================================================
+# command[check_checkrestart]=/usr/local/lib/nagios/plugins/check_checkrestart.sh
+#
+# ===== Sudoers conf ========================================================
+# User_Alias CHECK_CHECKRESTART=nagios
+# Defaults:CHECK_CHECKRESTART !requiretty
+# CHECK_CHECKRESTART ALL=(root) NOPASSWD: /usr/sbin/checkrestart
+#
 # ================================ REVISION ==================================
 #
 # 0.1 Initial release
+# 0.2 Add -p option for debian >= 7, use sudo if needed and add nrpe example
 #
 # ============================================================================
 package=check_checkrestart
 
 # Path to racadm binary
 checkrestart=/usr/sbin/checkrestart
+
+# use sudo for nrpe server running under nagios user
+if [ $EUID -ne 0 ] ; then
+	checkrestart="sudo ${checkrestart}"
+fi
+
+# use -p for newer versions
+$checkrestart -h  2>&1 | grep -q vhpa
+if  [ $? -eq 0 ] ; then
+	checkrestart="${checkrestart} -p"
+fi
 
 # default values for warnings and critical
 warning=1
@@ -143,17 +167,17 @@ fi
     
 case $exitcode in 
     0)
-	echo "OK| $result"
+	echo "OK: no service or process to restart | to_restart=$result"
 	exit 0
 	;;
     
     1)
-	echo "WARNING| $result"
+	echo "WARNING: $result services or processes to restart | to_restart=$result"
 	exit 1
 	;;
     
     2)
-	echo "CRTITICAL| $result"
+	echo "CRTITICAL: $result services or processes to restart | to_restart=$result"
 	exit 2
 	;;
     *)
