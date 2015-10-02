@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # ============================== SUMMARY =====================================
 #
@@ -151,14 +151,14 @@ done
 result=$($checkrestart | grep Found | awk '{print $2}')
 
 # Make sure we have a result. If we don't that usually means that the connection failed, e.g. wrom hostname or credentials
-if [[ -z $result ]]; then
+if [ -z $result ]; then
     echo "CRITICAL - No data, maybe $checkrestart missing?"
     exit 2
 fi
 
-if [[ $result -ge $critical ]]; then
+if [ $result -ge $critical ]; then
     exitcode=2
-elif [[ $result -ge $warning ]]; then
+elif [ $result -ge $warning ]; then
     exitcode=1
 else
     exitcode=0
