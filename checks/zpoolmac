@@ -1,0 +1,117 @@
+#!/bin/sh
+# Based on: NRPE check for zpool
+# Written by: Søren Klintrup <soren at klintrup.dk>
+# http://soren.klintrup.dk/zpool/
+# version 1.1
+
+
+#echo '<<<zpool>>>'
+#calc(){ awk "BEGIN { print "$*" }"  }
+
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
+if [ -x "/usr/local/bin/zpool" ]
+then
+ DEVICES="$(zpool list -H -o name)"
+else
+ echo "3 $DEVICESTRING zpool executable not found"
+fi
+unset ERRORSTRING
+unset OKSTRING
+unset ERR
+
+for DEVICE in ${DEVICES}
+do
+ HEALTHSTRING="$(zpool list -H -o health ${DEVICE})"
+ SIZESTRING="$(zpool list  -H -o size ${DEVICE})"
+ SIZEUNIT="${SIZESTRING: -1}"
+ S=${SIZESTRING%?}
+ case $SIZEUNIT in 
+     K)
+	 FREE=$(echo "$F * 1024" | bc -l)
+     ;;
+     M)
+	 SIZE=$(echo "$S * 1024 * 1024" | bc -l)
+     ;;
+     G)
+	 SIZE=$(echo "$S * 1024 * 1024 * 1024" | bc -l)
+     ;;
+     T)
+	 SIZE=$(echo "$S * 1024 * 1024 * 1024 * 1024" | bc -l)
+     ;;
+ esac
+ FREESTRING="$(zpool list  -H -o free ${DEVICE})"
+ FREEUNIT="${FREESTRING: -1}"
+ F=${FREESTRING%?}
+ case $FREEUNIT in 
+     K)
+	 FREE=$(echo "$F * 1024" | bc -l)
+     ;;
+     M)
+	 FREE=$(echo "$F * 1024 * 1024" | bc -l)
+     ;;
+     G)
+	 FREE=$(echo "$F * 1024 * 1024 * 1024" | bc -l)
+     ;;
+     T)
+	 FREE=$(echo "$F * 1024 * 1024 * 1024 * 1024" | bc -l)
+     ;;
+ esac
+
+ ALLOCSTRING="$(zpool list -H -o alloc ${DEVICE})"
+ ALLOCUNIT="${ALLOCSTRING: -1}"
+ A=${ALLOCSTRING%?}
+ case $ALLOCUNIT in 
+     K)
+	 ALLOC=$(echo "$A * 1024" | bc -l)
+     ;;
+     M)
+	 ALLOC=$(echo "$A * 1024 * 1024" | bc -l)
+     ;;
+     G)
+	 ALLOC=$(echo "$A * 1024 * 1024 * 1024" | bc -l)
+     ;;
+     T)
+	 ALLOC=$(echo "$A * 1024 * 1024 * 1024 * 1024" | bc -l)
+     ;;
+ esac
+
+ USEDPERCENTAGE=$(echo "scale=1;(($ALLOC / $SIZE)*100)/1" | bc -l)
+ DEVICESTRING="zpool_$DEVICE size=$SIZE|free=$FREE|usedpercent=$USEDPERCENTAGE;95;98"
+ if [ "$(echo ${HEALTHSTRING}|tr [:upper:] [:lower:]|sed -Ee 's/.*(degraded|faulted|offline|online|removed|unavail).*/\1/')" = "" ]
+ then
+     echo "3 $DEVICESTRING unknown state"
+ else
+  case $(echo ${HEALTHSTRING}|tr [:upper:] [:lower:]|sed -Ee 's/.*(degraded|faulted|offline|online|removed|unavail).*/\1/') in
+   degraded)
+      echo "2 $DEVICESTRING degraded"
+    ;;
+   faulted)
+      echo "2 $DEVICESTRING faulted"
+    ;;
+   offline)
+      echo "2 $DEVICESTRING offline"
+    ;;
+   removed)
+      echo "2 $DEVICESTRING removed"
+    ;;
+   unavail)
+      echo "2 $DEVICESTRING unavail"
+    ;;
+   online)
+      echo "0 $DEVICESTRING online"
+    ;;
+   esac
+ fi
+ unset SIZE
+ unset SIZEUNIT
+ unset SIZESTRING
+ unset S
+ unset FREE
+ unset FREEUNIT
+ unset FREESTRING
+ unset F
+ unset ALLOC
+ unset ALLOCUNIT
+ unset ALLOCSTRING
+ unset A
+done

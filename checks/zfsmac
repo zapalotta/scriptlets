@@ -1,0 +1,4 @@
+#!/bin/sh
+echo '<<<zfsmac>>>'
+/usr/local/bin/zfs list -p | tail -n +2
+
