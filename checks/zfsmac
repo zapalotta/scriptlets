@@ -1,4 +1,41 @@
-#!/bin/sh
-echo '<<<zfsmac>>>'
-/usr/local/bin/zfs list -p | tail -n +2
+#!/usr/bin/python
+zfsmac_default_values = (95, 98)
 
+# the inventory function
+def inventory_zfsmac(info):
+   for line in info:
+      name = line[0]   # name of the volume
+      yield name, "zfsmac_default_values"
+
+# the check function
+def check_zfsmac(item, params, info):
+   warn, crit = params
+   for line in info:
+      # is this our line?
+      if line[0] == item:
+         used = float( line[1] )  # Bytes used
+         usedMB = used/1024/1024
+         usedGB = usedMB/1024
+         available = float( line[2] )  # Bytes available
+         availableMB = available/1024/1024
+         availableGB = availableMB/1024
+         refered = float( line[3] ) # Bytes refered
+         space = used + available # Bad idea, but good for testing!
+         spaceGB = space/1024/1024/1024
+         spaceTB = spaceGB/1024
+         percentage = used/space*100
+         perfdata = [ ( "used", int( usedGB ) ), ("sum", spaceGB ) ]
+         if percentage > crit:
+            return 2, "Capacity used: %dGB (%d%%), Available: %dGB" % (usedGB, percentage, availableGB), perfdata
+         elif percentage > warn:
+            return 1, "Capacity used: %dGB (%d%%), Available: %dGB" % (usedGB, percentage, availableGB), perfdata
+         else:
+            return 0, "Capacity used: %dGB, Available: %dGB" % (usedGB, availableGB) , perfdata
+
+# declare the check to Check_MK
+check_info["zfsmac"] = {
+    'check_function':            check_zfsmac,
+    'inventory_function':        inventory_zfsmac,
+    'service_description':       'ZFS State %s',
+    'has_perfdata':              True,
+}
