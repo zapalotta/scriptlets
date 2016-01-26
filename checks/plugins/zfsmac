@@ -1,4 +1,64 @@
 #!/bin/sh
+#
+# ============================== SUMMARY =====================================
+#
+# Program : zfsmac (plugin)
+# Version : 0.1
+# Date    : January 26 2016
+# Author  : Dirk Doerflinger - dirk(at)doerflinger(dot)org
+# Summary : This is a check_mk plugin for monitoring zfs datasets on OS X
+#
+# Licence : MIT 
+#
+# =========================== PROGRAM LICENSE =================================
+#
+# Copyright (C) 2016 Dirk Doerflinger
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy 
+# of this software and associated documentation files (the "Software"), to deal 
+# in the Software without restriction, including without limitation the rights 
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+# copies of the Software, and to permit persons to whom the Software is 
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in 
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+# SOFTWARE.
+#
+# ===================== INFORMATION ABOUT THIS PLUGIN =========================
+#
+# Local (client) plugin for sending zfs data on OS X (Testet on El Capitan) 
+# Requires a server check provided in this package, too
+#
+# This program is written and maintained by:
+#   Dirk Doerflinger - dirk(at)doerflinger(dot)org
+#
+# ============================= SETUP NOTES ====================================
+#
+# Set up check_mk_agent on OS X. I put the agent in /usr/local/bin and adjust 
+# its path settings like this:
+#
+# export MK_LIBDIR="/usr/local/lib/check_mk_agent"
+# export MK_CONFDIR="/etc/check_mk"
+# export MK_VARDIR="/var/lib/check_mk_agent"
+#
+# Also set up either xinetd or a LaunchDaemon and test from your monitor host
+#
+# Copy the file to /usr/local/lib/check_mk_agent/plugins
+# Make sure it is executable 
+#
+# ================================ REVISION ==================================
+#
+# 0.1 Initial release
+#
+# ============================================================================
 echo '<<<zfsmac>>>'
 /usr/local/bin/zfs list -p | tail -n +2
 

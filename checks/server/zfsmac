@@ -1,4 +1,63 @@
 #!/usr/bin/python
+#
+# ============================== SUMMARY =====================================
+#
+# Program : zfsmac (server side check)
+# Version : 0.1
+# Date    : January 26 2016
+# Author  : Dirk Doerflinger - dirk(at)doerflinger(dot)org
+# Summary : This is a check_mk check for zfs datasets  provided from the 
+# OS X plugin 
+#
+# Licence : MIT 
+#
+# =========================== PROGRAM LICENSE =================================
+#
+# Copyright (C) 2016 Dirk Doerflinger
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy 
+# of this software and associated documentation files (the "Software"), to deal 
+# in the Software without restriction, including without limitation the rights 
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+# copies of the Software, and to permit persons to whom the Software is 
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in 
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+# SOFTWARE.
+#
+# ===================== INFORMATION ABOUT THIS PLUGIN =========================
+#
+# This check_mk check parses data provided by the zfsmac plugin for checking 
+# dtaatsets on OS X (Tested on EL Capitan). 
+# It also sends performance data, though that must be handled with care due to
+# wrong calculations. Use the performance data from zpoolmac rather.
+#
+# This program is written and maintained by:
+#   Dirk Doerflinger - dirk(at)doerflinger(dot)org
+#
+# ============================= SETUP NOTES ====================================
+#
+# Copy this file to the checks folder of your check_mk installation. I am using
+# OMD and have it in /opt/omd/versions/1.30/share/check_mk/checks/
+# Make sure it is executable for the check_mk user
+# You also need to have bc installed on the monitoring host!
+#
+# ================================ REVISION ==================================
+#
+# 0.1 Initial release
+#
+# ============================================================================
+
+# Some default values for warning and critical. These can be overwritten in 
+# check_mk
 zfsmac_default_values = (95, 98)
 
 # the inventory function
@@ -10,6 +69,7 @@ def inventory_zfsmac(info):
 # the check function
 def check_zfsmac(item, params, info):
    warn, crit = params
+   # Iterate over each line
    for line in info:
       # is this our line?
       if line[0] == item:
@@ -24,6 +84,7 @@ def check_zfsmac(item, params, info):
          spaceGB = space/1024/1024/1024
          spaceTB = spaceGB/1024
          percentage = used/space*100
+         # Don't take this for granted!
          perfdata = [ ( "used", int( usedGB ) ), ("sum", spaceGB ) ]
          if percentage > crit:
             return 2, "Capacity used: %dGB (%d%%), Available: %dGB" % (usedGB, percentage, availableGB), perfdata
