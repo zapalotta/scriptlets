@@ -94,7 +94,7 @@ package=check_checkrestart
 checkrestart=/usr/sbin/checkrestart
 
 # use sudo for nrpe server running under nagios user
-if [ $EUID -ne 0 ] ; then
+if [ "$(id -u)" -ne 0 ] ; then
 	checkrestart="sudo ${checkrestart}"
 fi
 
